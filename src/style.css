@@ -1,0 +1,13 @@
+@font-face {
+  font-family: harmonyOS;
+  src: local('HarmonyOS Sans SC'), url('./assets//HarmonyOS_Sans_SC_Regular.ttf');
+  font-display: swap;
+}
+
+*,* *{
+  font-family: harmonyOS;
+}
+body{
+  margin: 0 ;
+  padding: 0;
+}
