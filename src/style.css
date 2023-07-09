@@ -9,5 +9,21 @@
 }
 body{
   margin: 0 ;
-  padding: 0;
+  padding: 0 var(--paddingValue);
+  position: relative;
+  box-sizing: content-box;
+  --paddingValue: 20px
+}
+
+@media (max-width: 820px) {
+  body{
+    --paddingValue: 10vw
+  }
+}
+
+@media (max-width: 450px) {
+  body{
+    margin: 0 ;
+    --paddingValue:6vw
+  }
 }
