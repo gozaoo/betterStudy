@@ -79,8 +79,12 @@
 <style scoped>
 .inputBar{
     position: fixed;
-    bottom: 20px;
+    bottom: 0px;
     width: calc(100% - var(--paddingValue) * 2);
+    background-color: #fff;
+    padding: 0 var(--paddingValue) 20px var(--paddingValue);
+    transform: translateX(calc( -1 * var(--paddingValue) ));
+    box-shadow: 0 -12px 12px #fff;
 }
     h1{
         margin: 10px 0;
@@ -105,6 +109,7 @@ textarea::placeholder{
     cursor: text;
     flex-direction: row;
     overflow: hidden;
+    
 }
 .leftControl{
     color: #0006;

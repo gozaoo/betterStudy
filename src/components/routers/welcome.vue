@@ -37,8 +37,8 @@ adviseList
   };</script>
 
 <template>
-    <h1 >👋 欢迎使用 Better Study</h1>
-    <p>我可以实时通过你输入的内容，为你展示你学习中可能会用到的内容，下面是一些使用技巧和键入技巧：</p>
+    <h1 ><span style="font-size:1.5em">👋</span> 欢迎使用 Better Study</h1>
+    <p>我可以实时通过你输入的内容，为你显示你学习中可能会用到的信息。<br>下面为你展示一些使用技巧和键入技巧：</p>
     <adviseList :hidden="true" ></adviseList>
 </template>
 <style scoped>

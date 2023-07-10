@@ -4,7 +4,7 @@
   import searchRulers from './routers/index.js'
 
 
-console.log(components);
+// console.log(components);
 
   export default {
     name: 'router',

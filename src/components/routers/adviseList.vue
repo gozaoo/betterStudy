@@ -61,6 +61,7 @@
         padding: 6px 10px;
         border-radius: 12px;
         margin-bottom: 5px;
+        box-shadow: 0px 3px 5px rgb(0,138,211,.3);
     }
     .explain{
         color: #000b;
