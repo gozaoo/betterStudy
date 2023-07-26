@@ -8,17 +8,16 @@
         return {
             keywordAdvise:[
                 {
-                    key: '/gs',
-                    explain: '匹配古诗'
-                },
-                
-                {
                     key: '[回车]',
                     explain: '智能搜索'
                 },
                 {
                     key: '[双击回车]',
                     explain: '清空输入栏'
+                },
+                {
+                    key: '中文字/词典',
+                    explain: '键入中文'
                 }
             ]
             

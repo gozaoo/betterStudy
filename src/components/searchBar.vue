@@ -61,6 +61,8 @@
             <div class="content">
                 <span>{{ text }}</span>
                 <textarea @keydown.enter="enterEvent" placeholder="键入你的内容"  @focus="focusEvent" @blur="focusEvent" v-model="text"></textarea>
+
+                <!-- <textarea @keydown.enter="enterEvent" placeholder="键入你的内容"  @focus="focusEvent" @blur="focusEvent" v-model="text"></textarea> -->
             </div>
 
             

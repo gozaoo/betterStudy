@@ -1,7 +1,7 @@
 <script>
   import routerMap from './routers/index.js'
 
-  import searchRulers from './routers/index.js'
+  import searchRulers from './searchRulers/index.js'
 
 
 // console.log(components);
@@ -32,12 +32,16 @@
     watch: {
       renderingText: {
         handler: async function (newVal) {
-            this.templates = []
+            
+            this.templates = searchRulers.fitContent(newVal)
             // 清空展示表
 
             if(this.renderingState == 'not first' && this.renderingText == ''){
+                this.templates=[]
                 this.templates.push('adviseList')
             }
+
+
         },
         deep: true
       }
@@ -46,14 +50,18 @@
   };</script>
 
 <template>
-    <!-- {{ renderingText }} -->
-    <!-- <welcome></welcome> -->
-    <!-- <app>/</app> -->
+
     <div v-if="renderingText != ''&& renderingState == 'not first'">
         <h1>
         正在展示 <span style="text-decoration:underline"> {{ renderingText }} </span> 的内容
         </h1>
         <p style="color:#0006">提示：双击回车清空输入栏</p>
     </div>
-    <component  :is="item" v-for="item in templates" :key="item"></component>
+    <component :value="renderingText"  :is="item" v-for="item in templates" :key="item"></component>
+    <footer></footer>
 </template>
+<style scoped>
+    footer{
+        margin-bottom: 134px;
+    }
+</style>

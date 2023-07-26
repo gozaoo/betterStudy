@@ -35,9 +35,10 @@
 
 <template>
 
-  <search-bar @onEnter="onEnter"  @inputMethods="updateSearchText"  v-model="text"></search-bar>
 
   <router v-model:renderingState="renderingState" v-model:renderingText="this.renderingText"></router>
+  <search-bar @onEnter="onEnter"  @inputMethods="updateSearchText"  v-model="text"></search-bar>
+
 </template>
 
 <style scoped>

@@ -1,10 +1,12 @@
 // index.js
 import welcome from './welcome.vue';
 import adviseList from './adviseList.vue';
+import chinese from './chinese.vue'
+
 var map = {
     welcome,
     adviseList,
-    // app: ()=> import('../searchBar.vue')
+    chinese
 }
 
 export default map
