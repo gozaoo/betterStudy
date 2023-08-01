@@ -33,12 +33,11 @@
       renderingText: {
         handler: async function (newVal) {
             
-            this.templates = searchRulers.fitContent(newVal)
+            this.templates = ['alarm',...searchRulers.fitContent(newVal)]
             // 清空展示表
 
             if(this.renderingState == 'not first' && this.renderingText == ''){
-                this.templates=[]
-                this.templates.push('adviseList')
+                this.templates=['alarm','adviseList']
             }
 
 

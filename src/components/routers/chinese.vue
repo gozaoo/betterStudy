@@ -21,7 +21,9 @@
             }).then(r=>r.json()).then(r=>{
                 this.result = r.result
                 this.type = r.type
-                this.explanation = (this.result.explanation)?this.result.explanation.split('\n'):[];
+                if(this.result !=(null || undefined)){
+                    this.explanation = (this.result.explanation)?this.result.explanation.split('\n'):[];
+                }
                 
             })
         }
@@ -41,7 +43,7 @@
   };</script>
 
 <template>
-    <div v-if="type != undefined" class="dictionary">汉语字典</div>
+    <div v-if="this.result !=(null || undefined)" class="dictionary">汉语字典</div>
     <div class="box" v-if="type == 'word'">
         <div class="word">
             {{ result.word }}
