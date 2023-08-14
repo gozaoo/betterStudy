@@ -26,6 +26,12 @@ let libs = {
             path: './lib/chinese/xiehouyu.js',
             data: undefined
         }
+    },
+    english:{
+        word: {
+            path: './lib/english/word.js',
+            data: undefined
+        }
     }
 }
 

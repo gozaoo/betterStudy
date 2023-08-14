@@ -3,9 +3,6 @@
 
   import searchRulers from './searchRulers/index.js'
 
-
-// console.log(components);
-
   export default {
     name: 'router',
     props: {

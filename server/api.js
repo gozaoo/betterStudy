@@ -6,6 +6,7 @@ import main from "../main.js"
 
 var cache = {}
 
+// 接受汉语
 router.get('/searchHan', (req, res) => {
     const chineseDictionary = main.lib.中文;
     let tempTime = Date.now()
@@ -56,5 +57,28 @@ router.get('/searchHan', (req, res) => {
     }
 
 });
+router.get('/searchEng', (req, res) => {
+    const engDictionary = main.lib.english.word;
+    let tempTime = Date.now()
 
+    
+    let JsonTool = (data)=>{
+        res.json({
+            ...data,
+            takeTime: Date.now() - tempTime
+        })
+    }
+    let result
+
+    result = engDictionary.data.find((elm)=> elm.headWord == req.query.value);
+
+    
+    if(result == undefined){
+        result = engDictionary.data.find((elm)=> elm.headWord.includes(req.query.value));
+    } 
+    JsonTool({
+        result
+    });
+
+});
 export default router
