@@ -20,7 +20,6 @@
         updateSearchText(value) {
           if(!(value instanceof InputEvent)){
             this.text = value
-            // console.log(value);
           } 
 
         },

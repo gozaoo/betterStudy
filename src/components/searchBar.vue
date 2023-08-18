@@ -23,14 +23,11 @@
             console.log(tempTime - this.lastEnterTime );
             if((tempTime - this.lastEnterTime )<= 500){
                 this.text = ''
-                
-                // console.log(1);
-
             }
+            
             this.lastEnterTime = tempTime
             this.$nextTick(()=>{
                 this.$emit('onEnter'); 
-                // console.log(1);
             })
         }
     },
@@ -38,7 +35,7 @@
       text: {
         handler: async function (newVal) {
             this.$emit('inputMethods', newVal); // 触发一个自定义事件input，并将inputText的值作为参数传递给父组件
-            
+            this.$emit('onEnter'); 
         },
         deep: true
       }
@@ -60,6 +57,7 @@
             </div>
             <div class="content">
                 <span>{{ text }}</span>
+            
                 <textarea @keydown.enter="enterEvent" placeholder="键入你的内容"  @focus="focusEvent" @blur="focusEvent" v-model="text"></textarea>
 
                 <!-- <textarea @keydown.enter="enterEvent" placeholder="键入你的内容"  @focus="focusEvent" @blur="focusEvent" v-model="text"></textarea> -->

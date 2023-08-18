@@ -8,6 +8,7 @@
             result: {},
             type:undefined,
             explanation: [],
+            displaymore:false
         }
     },
     methods: {
@@ -40,7 +41,7 @@
 
 <template>
     <div v-if="this.result !=(null || undefined)" class="dictionary">英语字典</div>
-    <div class="box" v-if="result.headWord != undefined">
+    <div class="box" v-if="result">
         <div class="word">
             {{ result.headWord }}
         </div>
@@ -56,7 +57,10 @@
                     {{ item.pos }}.{{ item.tranCn }}
             </span>
         </p>
-        <div class="phrase ">
+        <div class="bottom" @click="displaymore = true" v-if="displaymore == false">
+            显示更多
+        </div>
+        <div v-if="displaymore == true" class="phrase ">
             <span v-for="(item,index) in result.content.word.content.phrase.phrases">
                 {{ item.pContent + ' ' + item.pCn}} 
             </span>
@@ -88,5 +92,9 @@
         display: flex;
         flex-direction: column;
     }
-
+    .bottom{
+        text-decoration: underline;
+        color: rgb(0,138,211);
+        cursor: pointer;
+    }
 </style>

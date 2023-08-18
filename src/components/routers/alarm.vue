@@ -160,6 +160,7 @@
 <style scoped>
     h2{
         margin: 6px 0;
+        font-size: 19px;
     }
     h2+div{
         color: #888;
@@ -174,7 +175,7 @@
     .setter{
         display: flex;
         flex-direction: row;
-        height: 80px;
+        height: 60px;
         width: fit-content;
         margin: 12px 0;
         gap: 10px;
@@ -182,7 +183,7 @@
     }
     .count{
         background-color: #fff;
-        min-width: 120px;
+        min-width: 100px;
         border-radius: 13px;
         display: flex;
         width: fit-content;
@@ -199,13 +200,13 @@
     }
     .buttom{
         background-color: #fff;
-        min-width: 50px;
+        min-width: 40px;
         border-radius: 13px;
         display: flex;
         height: inherit;   
         justify-content: center;
         align-items: center;
-        font-size: 28px;
+        font-size: 24px;
         cursor: pointer;
         user-select: none;
     }
@@ -214,7 +215,7 @@
         color: white;
         width: fit-content;
         cursor: pointer;
-        padding: 12px 18px;
+        padding: 10px 18px;
         border-radius: 12px;
         margin-bottom: 5px;
         box-shadow: 0px 3px 5px rgb(0,138,211,.3);
