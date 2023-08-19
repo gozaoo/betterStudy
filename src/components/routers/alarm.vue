@@ -1,6 +1,9 @@
 <script setup >
     import { ref, watchEffect, watch, computed } from 'vue';
 
+    defineProps({
+        value: String,
+    })
 
     const nowAlarm = ref(localStorage.getItem('alarm'))
     console.log(nowAlarm);
@@ -51,10 +54,9 @@
                 let nowThingsIndex = nowAlarm.value.timePoint.findIndex((item)=>item.time > tempTimeMil)
                 let nowThings = nowAlarm.value.timePoint[nowThingsIndex]
 
-                
                 if(nowThings){
                     data.value.display.index = nowThingsIndex
-                    data.value.display.title = (nowThings.type == 'work')?'请工作':'休息时间到'
+                    data.value.display.title = (nowThings.type == 'work')?'请专注':'休息时间到'
                     let offsetMil = (nowThings.time - tempTimeMil)
                     data.value.display.remainingTime  = toTwoLength(Math.trunc( offsetMil / 1000 / 60 ))+ ':' + toTwoLength((( offsetMil / 1000 % 60 ) - 1).toFixed(0))
                 } else {
@@ -145,19 +147,32 @@
             </div>
             <div @click="startAlarm" class="alarmStart">开始</div>
         </div>
-        <div class="alarm" v-if="nowAlarm">
-            <h2>
-                {{ data.display.title }} {{ '('+ (data.display.index + 1) + '/' + (nowAlarm.timePoint.length) +')' }}
-            </h2>
-            <div>还有 {{ data.display.remainingTime }} 结束</div>
-            <br>
+        <div class="alarm" :style="{
+            'background-color':(data.display.finishwork == true )?'rgb(0,138,211,.3)':null,
 
-            <div @click="cleanAlarm" class="alarmStart">清除闹钟</div>
+        }" v-if="nowAlarm">
+            <h2 class="time">
+                {{ data.display.remainingTime }} <span style="color:#0005;font-size:16px">{{ '('+ (data.display.index + 1) + '/' + (nowAlarm.timePoint.length) +')' }}</span>
+            </h2>
+            <div>
+                {{ data.display.title }}
+            </div>
+
+            <div @click="cleanAlarm" class="alarmStart trash using">
+                <!--垃圾桶-->
+                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
+                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
+                </svg>
+            </div>
         </div>
         
     </div>
 </template>
 <style scoped>
+.time{
+    font-size: 23px;
+    margin: 6px 0 0 0px;
+}
     h2{
         margin: 6px 0;
         font-size: 19px;
@@ -169,8 +184,9 @@
         background-color: #00000008;
         border-radius: 13px;
         /* box-sizing: border-box; */
-        padding: 10px;
-        margin: 20px -10px;
+        padding: 9px 15px 16px 15px;
+        margin: 20px -15px;
+        position: relative;
     }
     .setter{
         display: flex;
@@ -219,6 +235,24 @@
         border-radius: 12px;
         margin-bottom: 5px;
         box-shadow: 0px 3px 5px rgb(0,138,211,.3);
+    }
+    .alarmStart{
+        position: absolute;
+        right: 10px;
+        bottom: 10px;
+    }
+    .trash{
+        width: 18px;
+        width: 18px;
+    }
+    .trash{
+        background-color: rgb(0,138,211,0);
+        color: rgb(0,0,0,.7);
+        box-shadow: 0px 3px 5px rgb(0,138,211,0);
+    }
+    .trash:hover{
+        color: rgb(0,0,0,.9);
+
     }
 </style>
     

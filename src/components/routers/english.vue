@@ -45,7 +45,7 @@
         <div class="word">
             {{ result.headWord }}
         </div>
-        <p class="more">
+        <p class="more" v-if="result.content">
             <span v-if="result.content.word.content.usphone == result.content.word.content.ukphone">
                 英&美 /{{ result.content.word.content.usphone }}/
             </span>

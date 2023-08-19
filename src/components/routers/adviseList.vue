@@ -1,72 +1,92 @@
 <script>
-  export default {
-    // name: 'search-bar',
-    props: {
-        hidden: Boolean
-    },
-    data(){
-        return {
-            keywordAdvise:[
-                {
-                    key: '[回车]',
-                    explain: '智能搜索'
-                },
-                {
-                    key: '[双击回车]',
-                    explain: '清空输入栏'
-                },
-                {
-                    key: '中文字/词典',
-                    explain: '键入中文'
-                },
-                {
-                    key: '英文字/词典',
-                    explain: '键入英文'
-                }
-            ]
-            
-        }
-    },
-    methods: {
-        // focusEvent(event){
-        //     this.textareaState = event.type
-        // }
-    },
-    watch: {
+    export default {
+        // name: 'search-bar',
+        props: {
+            hidden: Boolean,
+            value: String
+        },
+        data() {
+            return {
+                keywordAdvise: [{
+                        key: '[双击回车]',
+                        explain: '清空输入栏'
+                    },
+                    {
+                        key: '中文字/词典',
+                        explain: '键入中文'
+                    },
+                    {
+                        key: '英文字/词典',
+                        explain: '键入英文'
+                    },
+                    {
+                        key: '/',
+                        explain: '智能搜索'
+                    }
+                ],
+                CommendAdvise:[{
+                    key: '[任意内容]',
+                    explain: '使用必应搜索'
+                },{
+                    key: 'sydy',
+                    explain: '使用深言达意搜索句子'
+                }],
+                usingCommend: false
 
-    }
-    
-  };</script>
+            }
+        },
+        methods: {
+            // focusEvent(event){
+            //     this.textareaState = event.type
+            // }
+        },
+        watch: {
+            value: {
+                handler: async function (newVal) {
+                    this.usingCommend = (newVal[0] == '/'||newVal[0] == '、')?true:false;
+                },
+                deep: true
+            }
+        },
+        created(){
+            this.usingCommend = (this.value[0] == '/'||this.value[0] == '、')?true:false;
+        }
+
+    };
+</script>
 
 <template>
     <h1 v-if="hidden != true">使用技巧和提示词：</h1>
     <div class="flex">
-        <div class="adviseBox" v-for="(item,index) in keywordAdvise">
+        <div class="adviseBox" v-for="(item,index) in (usingCommend)?CommendAdvise:keywordAdvise">
             <div class="advise">{{item.key}}</div>
             <div class="explain">{{ item.explain }}</div>
         </div>
     </div>
 </template>
 <style scoped>
-    div.flex{
+    div.flex {
         display: flex;
         gap: 15px;
         margin-top: 30px;
     }
-    .adviseBox{
+
+    .adviseBox {
         min-width: fit-content;
         min-height: fit-content;
     }
+
     .advise {
-        background-color: rgb(0,138,211);
+        background-color: rgb(0, 138, 211);
         color: white;
         width: fit-content;
         padding: 6px 10px;
         border-radius: 12px;
         margin-bottom: 5px;
-        box-shadow: 0px 3px 5px rgb(0,138,211,.3);
+        box-shadow: 0px 3px 5px rgb(0, 138, 211, .3);
     }
-    .explain{
+
+    .explain {
         color: #000b;
     }
 </style>

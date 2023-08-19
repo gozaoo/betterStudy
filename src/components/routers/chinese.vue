@@ -19,6 +19,9 @@
             "mode": "cors",
             "credentials": "include"
             }).then(r=>r.json()).then(r=>{
+                if(!r.result){
+                    return
+                }
                 this.result = r.result
                 this.type = r.type
                 if(this.result !=(null || undefined)){

@@ -18,7 +18,7 @@ body{
   padding: 0 var(--paddingValue);
   position: relative;
   box-sizing: content-box;
-  --paddingValue: 20px
+  --paddingValue: 15vw
 }
 
 @media (max-width: 820px) {

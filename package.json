@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "animejs": "^3.2.1",
     "express": "^4.18.2",
     "fs": "^0.0.1-security",
     "single-line-log": "^1.1.2",
