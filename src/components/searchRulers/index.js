@@ -33,7 +33,7 @@ function minApp(val){
         return undefined
     }
 
-    let apps = ['sydy']
+    let apps = ['sydy','tran']
 
     for (let index = 0; index < apps.length; index++) {
         const element = isTheContent(apps[index]);

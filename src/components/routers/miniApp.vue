@@ -34,6 +34,15 @@
                         style: {
                             'margin-top': '-150px'
                         }
+                    },
+                    tran: {
+                        path: 'cn.bing.com/translator',
+                        basicParam: {
+                        },
+                        paramValueName: 'text',
+                        style: {
+                            'margin-top': '-150px',
+                        }
                     }
                 }
             }

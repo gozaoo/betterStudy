@@ -30,6 +30,9 @@
                 },{
                     key: 'sydy',
                     explain: '使用深言达意搜索句子'
+                },{
+                    key: 'tran',
+                    explain: '翻译'
                 }],
                 usingCommend: false
 
@@ -49,6 +52,9 @@
             }
         },
         created(){
+            if(!this.value){
+                return
+            }
             this.usingCommend = (this.value[0] == '/'||this.value[0] == '、')?true:false;
         }
 
