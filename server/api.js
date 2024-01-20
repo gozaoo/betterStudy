@@ -20,7 +20,7 @@ router.get('/searchHan', (req, res) => {
     }
     let result
     let searchIdiom = () => {
-         result = chineseDictionary.四字成语.data.find((elm) => elm.word.includes(req.query.value));
+         result = chineseDictionary.四字成语.data.filter((elm) => elm.word.includes(req.query.value));
         JsonTool({
             type: 'idiom',
             result

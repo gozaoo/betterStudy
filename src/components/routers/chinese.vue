@@ -61,14 +61,17 @@
         <p class="more"> 解释：<span v-for="(item,index) in this.explanation">{{ item }}</span></p>
     </div>
 
-    <div class="box" v-if="type == 'idiom' && result">
+    <div class="box" v-if="type == 'idiom' && result" v-for="(result, index) in result" :key="index">
         <div class="word">
             {{ result.word }}
         </div>
-        <p class="more">{{ result.pinyin }}  解释：<span v-for="(item,index) in this.explanation">{{ item }}</span> 例子：{{ result.derivation }}</p>
+        <p class="more">{{ result.pinyin }}  解释：<span v-for="(item,index) in result.explanation">{{ item }}</span> 例子：{{ result.derivation }}</p>
     </div>
 </template>
 <style scoped>
+.box{
+    clear:both
+}
     .dictionary{
         margin-top: 10px;
         color: #0003;

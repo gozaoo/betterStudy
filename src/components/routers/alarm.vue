@@ -1,258 +1,416 @@
-<script setup >
-    import { ref, watchEffect, watch, computed } from 'vue';
-
-    defineProps({
-        value: String,
-    })
-
-    const nowAlarm = ref(localStorage.getItem('alarm'))
-    console.log(nowAlarm);
-    if(nowAlarm.value != null) {
-        nowAlarm.value = JSON.parse(nowAlarm.value)
-        
-    } else {
-        
-    }
-
-    const data = ref({
-        timeContent: '',
-        hour: 0,
-        minute: 0,
-        seconds: 0,
-        todaysSeconds: 0,
-        nowThings:[],
-        display:{
-            title: '--',
-            remainingTime: '--:--',
-            finishwork: false,
-            index: 0
-        }
-    })
-    let toTwoLength=(num)=>{
-            if(Number(num)<10){
-                return '0'+ num
-            } else {
-                return num
-            }
-        }
-
-    function gettodaysSeconds(hour,minute,seconds){
-        
-        return ((((isNaN(hour))?0:hour) * 60 * 60) + (((isNaN(minute))?0:minute) * 60) + ((isNaN(seconds))?0:seconds))
-    }
-
-        let updateTime=()=> {
-            let tempTime = new Date()
-            let tempTimeMil = Date.now()
-            data.value.hour = tempTime.getHours()
-            data.value.minute = tempTime.getMinutes()
-            data.value.seconds = tempTime.getSeconds()
-            data.value.todaysSeconds = gettodaysSeconds(data.value.hour ,data.value.minute,data.value.seconds)
-            data.value.timeDisplay = timeDisplay()
-            
-            if(nowAlarm.value != null) {
-                let nowThingsIndex = nowAlarm.value.timePoint.findIndex((item)=>item.time > tempTimeMil)
-                let nowThings = nowAlarm.value.timePoint[nowThingsIndex]
-
-                if(nowThings){
-                    data.value.display.index = nowThingsIndex
-                    data.value.display.title = (nowThings.type == 'work')?'请专注':'休息时间到'
-                    let offsetMil = (nowThings.time - tempTimeMil)
-                    data.value.display.remainingTime  = toTwoLength(Math.trunc( offsetMil / 1000 / 60 ))+ ':' + toTwoLength((( offsetMil / 1000 % 60 ) - 1).toFixed(0))
-                } else {
-                    data.value.display.title = '完成啦！'
-                    data.value.display.finishwork = true
+<script>
+    export default {
+        data() {
+            return {
+                PomodoroTimerInfo: null,
+                state: {
+                    currentIndex: 0,
+                    currentPomodoroEventInfo: {
+                        progress: 0,
+                        title: "",
+                        remainingTime: null,
+                    },
+                    progress: 0,
+                    remainingTime: null,
+                    finished: false,
+                },
+                interval: null,
+                pomodoroCreater: {
+                    num: 1,
+                    origNum: 1,
+                    tempPomodoroTimerInfo: this.createPomodoroTimer(1)
                 }
             }
-
-            
-            setTimeout(() => {
-            updateTime()
-            }, 1000);   
-        } 
-        updateTime()
+        },
+        created() {
+            let localStorageInfo = localStorage.getItem('alarm')
 
 
-    function timeDisplay(){
-
-        return toTwoLength(data.value.hour) + ':' + toTwoLength(data.value.minute)
-    }
-
-    function getMillisecond(hour,minute,seconds){
-        return ((((isNaN(hour))?0:hour) * 60 * 60 * 1000) + (((isNaN(minute))?0:minute) * 60 * 1000) + ((isNaN(seconds))?0:(seconds * 1000)))
-    }
-
-    const createANewAlarm = ref({
-        times: 1,
-        startTime:null  
-    })
-
-    let startAlarm=()=>{
-
-        let theAlarm = createANewAlarm.value
-        theAlarm.startTime = Date.now()
-        theAlarm['timePoint'] = []
-        
-        let tempLastTime = theAlarm.startTime
-        for (let i = 1; i <= theAlarm.times; i++) {
-            if(i != 1){
-                theAlarm.timePoint.push({
-                    type:'rest',
-                    time: tempLastTime + getMillisecond(0,5)
-                })
-                tempLastTime = tempLastTime + getMillisecond(0,5)
-                console.log(new Date(tempLastTime));
+            if (localStorageInfo != null) {
+                this.PomodoroTimerInfo = JSON.parse(localStorageInfo)
+                console.log(this.PomodoroTimerInfo);
+                this.timerInterval()
             }
-            theAlarm.timePoint.push({
-                type:'work',
-                time: tempLastTime + getMillisecond(0,25)
-            })
-            tempLastTime = tempLastTime + getMillisecond(0,25)
-            console.log(new Date(tempLastTime));
 
+            // this.startNewPomodoroTimer(5)
+        },
+        components: {},
+        methods: {
+            formatDate(date) {
+                const hour = date.getHours();
+                const min = date.getMinutes();
+                let h = '';
+                let m = '';
+                if (hour < 10) {
+                    h += '0'
+                }
+                if (min < 10) {
+                    m += '0'
+                }
+                h += hour;
+                m += min;
+                return h + ':' + m
+
+            },
+            // 将时间格式化
+            formatTime(time) {
+                // 计算总秒数
+                let totalSeconds = Math.floor(time / 1000);
+
+                // 计算小时数
+                let hours = Math.floor(totalSeconds / 3600);
+
+                // 计算剩余的秒数
+                let remainingSecondsAfterHours = totalSeconds % 3600;
+
+                // 计算分钟数
+                let minutes = Math.floor(remainingSecondsAfterHours / 60);
+
+                // 计算剩余的秒数
+                let seconds = remainingSecondsAfterHours % 60;
+
+                // 返回格式化后的时间字符串
+                return `${(hours == 0)?"":(hours+":")}${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            },
+            // 计算剩余时长、过去时长以及时间状态
+            calculateTime(endTime) {
+                // 获取当前时间
+                let now = new Date().getTime();
+                // 获取结束时间
+                let end = new Date(endTime).getTime();
+
+                // 计算时间差（以毫秒为单位）
+                let diff = end - now;
+
+                // 格式化时间差
+                let formattedTime = this.formatTime(Math.abs(diff));
+
+                // 判断时间状态
+                let isPast = diff < 0;
+
+                // 返回结果
+                return {
+                    formattedTime: formattedTime,
+                    state: isPast
+                };
+            },
+            // 创建番茄钟
+            createPomodoroTimer(pomodoroCount) {
+                let pomodoroDuration = 25; // 番茄钟时长（分钟）
+                let shortBreakDuration = 5; // 短休息时长（分钟）
+                let longBreakDuration = 15; // 长休息时长（分钟）
+                let currentTime = Date.now();
+                let pomodoroTimer = {
+                    pomodoroCount: pomodoroCount,
+                    createdAt: currentTime,
+                    endAt: null,
+                    duration: null,
+                    schedule: [],
+                    use: false,
+                };
+                let currentPomodoro = 1;
+                let currentTimePlusDuration;
+                // 添加一个事件到番茄钟表
+                let addEventToSchedule = (schedule, startTime, eventDuration, event) => {
+                    const endTime = startTime + eventDuration * 60000;
+                    schedule.push({
+                        startTime: startTime,
+                        endTime: endTime,
+                        event: event
+                    });
+                    return endTime;
+                }
+
+                while (currentPomodoro <= pomodoroCount) {
+                    // 添加专注事件
+                    currentTime = addEventToSchedule(pomodoroTimer.schedule, currentTime, pomodoroDuration, '专注中');
+
+                    // 根据当前番茄钟数量决定是长休息还是短休息
+                    if (currentPomodoro != pomodoroCount)
+                        if (currentPomodoro % 4 === 0) {
+                            currentTime = addEventToSchedule(pomodoroTimer.schedule, currentTime, longBreakDuration,
+                                '长休息');
+                        } else {
+                            currentTime = addEventToSchedule(pomodoroTimer.schedule, currentTime, shortBreakDuration,
+                                '短休息');
+                        }
+
+                    currentPomodoro++;
+                }
+                let endAt = pomodoroTimer.schedule[pomodoroTimer.schedule.length - 1].endTime
+                pomodoroTimer = {
+                    ...pomodoroTimer,
+                    endAt,
+                    duration: endAt - pomodoroTimer.createdAt
+                }
+                return pomodoroTimer;
+            },
+            // 启动一个番茄钟事件
+            startNewPomodoroTimer(pomodoroCount) {
+                let PomodoroTimerInfo = this.createPomodoroTimer(pomodoroCount)
+                PomodoroTimerInfo.use = true
+                localStorage.setItem('alarm', JSON.stringify(PomodoroTimerInfo))
+                this.PomodoroTimerInfo = PomodoroTimerInfo
+                this.state.finished = false
+                this.timerInterval()
+            },
+            // 番茄钟事件循环
+            timerInterval(isReFreshen) {
+                let calculate = () => {
+                    let PomodoroTimerInfo = this.PomodoroTimerInfo;
+                    
+
+                    if (PomodoroTimerInfo == null) return clearInterval(this.interval);
+
+
+                    let currentTime = new Date().getTime();
+
+                    // 找到当前番茄钟事件
+                    let result = PomodoroTimerInfo.schedule.find((val, ind, obj) => {
+                        if (val.startTime <= currentTime && currentTime < val.endTime) {
+                            this.state.currentIndex = ind;
+                            this.state.currentPomodoroEventInfo = {
+                                progress: this.progressCalculate(val.startTime, val.endTime,
+                                    currentTime),
+                                title: val.event,
+                                remainingTime: this.calculateTime(val.endTime)
+                            }
+                            return true
+                        }
+                    })
+                    if (result == undefined) {
+                        this.state = {
+                            ...this.state,
+                            remainingTime: null,
+                            finished: true,
+                            progress: 1
+                        }
+                        clearInterval(this.interval);
+                    }
+                    this.state = {
+                        ...this.state,
+                        remainingTime: this.calculateTime(PomodoroTimerInfo.schedule[PomodoroTimerInfo.schedule
+                            .length - 1].endTime),
+                        progress: this.progressCalculate(PomodoroTimerInfo.createdAt, PomodoroTimerInfo
+                            .schedule[PomodoroTimerInfo.schedule.length - 1].endTime,
+                            currentTime)
+                    }
+                    // console.log(this.state);
+                }
+                calculate()
+                if (isReFreshen != true) {
+                    this.interval = setInterval(() => calculate(), 1000)
+                }
+            },
+            progressCalculate(start, end, cur) {
+                return (start - cur) / (start - end)
+            },
+            cleanAlarm() {
+                localStorage.setItem('alarm', null)
+                clearInterval(this.interval)
+                this.interval = null
+                this.PomodoroTimerInfo = null
+            }
+        },
+        watch: {
+            pomodoroCreater: {
+                handler: async function  (newVal, oldVal) {
+                    if (newVal.num != oldVal.origNum) {
+                        newVal.origNum = newVal.num
+                        newVal.tempPomodoroTimerInfo = this.createPomodoroTimer(newVal.num)
+                    }
+                },
+                deep: true
+            }
         }
 
-        console.log(theAlarm);
-
-        // document.body.requestFullscreen()
-
-        localStorage.setItem('alarm',JSON.stringify(theAlarm))
-        nowAlarm.value = theAlarm
-    }
-
-    let cleanAlarm=()=>{
-        localStorage.setItem('alarm',null)
-        nowAlarm.value = undefined
-    }
+    };
 </script>
 <template>
-    <div>
-        <!-- <h1 ref="">{{  timeDisplay() }}</h1> -->
-        <div v-if="nowAlarm == null" class="alarm">
-            <h2>专注</h2>
-            <div>使用<a > 番茄工作法 </a>可以提升专注力和工作效率</div>
-
-            <div class="setter">
-                
-                <div @click="(createANewAlarm.times>1)?createANewAlarm.times--:undefined" class="buttom">
-                    -
+    <div class="alarmBox">
+        <div v-if="state.finished == true">
+            <div :style="{'--per': '100%'}" class="background">
+                <div class="progressLine"></div>
+                <div class="inner" id="box">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600 140" class="box-waves">
+                        <path d="M 0 70 Q 75 20,150 70 T 300 70 T 450 70 T 600 70 L 600 140 L 0 140 L 0 70Z">
+                        </path>
+                    </svg>
                 </div>
-                <div class="count">
-                    {{createANewAlarm.times * 25 + ((createANewAlarm.times - 1) * 5)}}
-                    <span>分钟</span>
-                </div>
-                <div @click="createANewAlarm.times++" class="buttom">
-                    +
+                <div class="text">
+                    100%
                 </div>
             </div>
-            <div @click="startAlarm" class="alarmStart">开始</div>
-        </div>
-        <div class="alarm" :style="{
-            'background-color':(data.display.finishwork == true )?'rgb(0,138,211,.3)':null,
-
-        }" v-if="nowAlarm">
-            <h2 class="time">
-                {{ data.display.remainingTime }} <span style="color:#0005;font-size:16px">{{ '('+ (data.display.index + 1) + '/' + (nowAlarm.timePoint.length) +')' }}</span>
+            <h2>
+                完成了
             </h2>
-            <div>
-                {{ data.display.title }}
+            <h1> 结束了{{  formatTime(PomodoroTimerInfo.duration) }}的专注。</h1>
+            <div class="buttomArea">
+                <button @click="cleanAlarm()">
+                    结束
+                </button>
+                <div style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
+                    总进度100%<br/>结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
+                </div>
             </div>
-
-            <div @click="cleanAlarm" class="alarmStart trash using">
-                <!--垃圾桶-->
-                <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
-                    <path d="M6.5 1h3a.5.5 0 0 1 .5.5v1H6v-1a.5.5 0 0 1 .5-.5ZM11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3A1.5 1.5 0 0 0 5 1.5v1H2.506a.58.58 0 0 0-.01 0H1.5a.5.5 0 0 0 0 1h.538l.853 10.66A2 2 0 0 0 4.885 16h6.23a2 2 0 0 0 1.994-1.84l.853-10.66h.538a.5.5 0 0 0 0-1h-.995a.59.59 0 0 0-.01 0H11Zm1.958 1-.846 10.58a1 1 0 0 1-.997.92h-6.23a1 1 0 0 1-.997-.92L3.042 3.5h9.916Zm-7.487 1a.5.5 0 0 1 .528.47l.5 8.5a.5.5 0 0 1-.998.06L5 5.03a.5.5 0 0 1 .47-.53Zm5.058 0a.5.5 0 0 1 .47.53l-.5 8.5a.5.5 0 1 1-.998-.06l.5-8.5a.5.5 0 0 1 .528-.47ZM8 4.5a.5.5 0 0 1 .5.5v8.5a.5.5 0 0 1-1 0V5a.5.5 0 0 1 .5-.5Z"/>
-                </svg>
-            </div>
+            
         </div>
-        
+        <div v-if="interval != null && PomodoroTimerInfo!=null">
+            <div :style="{'--per': ((state.currentPomodoroEventInfo.progress * 100).toFixed(0))+'%'}" class="background">
+                <div class="progressLine"></div>
+                <div class="inner" id="box">
+                    <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600 140" class="box-waves">
+                        <path d="M 0 70 Q 75 20,150 70 T 300 70 T 450 70 T 600 70 L 600 140 L 0 140 L 0 70Z">
+                        </path>
+                    </svg>
+                </div>
+                <div class="text">
+                    {{ ((state.currentPomodoroEventInfo.progress * 100).toFixed(0))+'%' }}
+                </div>
+            </div>
+            <h2>
+                {{ state.currentPomodoroEventInfo.title }}
+                <span>({{ (state.currentIndex + 1) + "/" + (PomodoroTimerInfo.schedule.length) }})</span>
+            </h2>
+            <h1> {{  state.currentPomodoroEventInfo.remainingTime.formattedTime }}</h1>
+            <div class="buttomArea">
+                <button @click="cleanAlarm()">
+                    结束
+                </button>
+                <div style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
+                    总进度{{ ((state.progress * 100).toFixed(0))+'%' }}<br/>结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
+                </div>
+            </div>
+            
+        </div>
+        <div v-if="PomodoroTimerInfo==null">
+            <h2>开始专注</h2>
+            <h1>选择持续至的工作时间</h1>
+            <div>使用番茄钟工作法，能够有效提升工作效率</div>
+            <div class="numSetter buttomArea">
+                <div @click="(pomodoroCreater.num != 1)?(pomodoroCreater.num--):''" class="button">-</div>
+                <div class="button">
+                    
+                    {{ formatDate(new Date(this.pomodoroCreater.tempPomodoroTimerInfo.endAt))}}结束 
+                    </div>
+                <div @click="pomodoroCreater.num++" class="button">+</div>
+            </div>
+            <button @click="startNewPomodoroTimer(this.pomodoroCreater.num)">
+                创建
+            </button>
+        </div>
     </div>
+
 </template>
 <style scoped>
-.time{
-    font-size: 23px;
-    margin: 6px 0 0 0px;
-}
-    h2{
-        margin: 6px 0;
-        font-size: 19px;
+    h2 {
+        margin: 0.5em 0 -.2em 0;
+        font-size: 20px;
     }
-    h2+div{
-        color: #888;
+
+    h1 {
+
+        margin: 0px 0 0.2em 0;
     }
-    .alarm{
-        background-color: #00000008;
-        border-radius: 13px;
-        /* box-sizing: border-box; */
-        padding: 9px 15px 16px 15px;
-        margin: 20px -15px;
-        position: relative;
-    }
-    .setter{
+
+    .buttomArea {
         display: flex;
-        flex-direction: row;
-        height: 60px;
-        width: fit-content;
-        margin: 12px 0;
-        gap: 10px;
-        position: relative;
-    }
-    .count{
-        background-color: #fff;
-        min-width: 100px;
-        border-radius: 13px;
-        display: flex;
-        width: fit-content;
-        height: inherit;   
-        justify-content: center;
-        align-items: center;
-        font-size: 28px;
-    }
-    .count span{
-        position: absolute;
-        font-size: 10px;
-        color: #0005;
-        bottom: 3px;
-    }
-    .buttom{
-        background-color: #fff;
-        min-width: 40px;
-        border-radius: 13px;
-        display: flex;
-        height: inherit;   
-        justify-content: center;
-        align-items: center;
-        font-size: 24px;
-        cursor: pointer;
+        gap: 5px;
         user-select: none;
     }
-    .alarmStart{
-        background-color: rgb(0,138,211);
-        color: white;
-        width: fit-content;
-        cursor: pointer;
-        padding: 10px 18px;
-        border-radius: 12px;
-        margin-bottom: 5px;
-        box-shadow: 0px 3px 5px rgb(0,138,211,.3);
-    }
-    .alarmStart{
-        position: absolute;
-        right: 10px;
-        bottom: 10px;
-    }
-    .trash{
-        width: 18px;
-        width: 18px;
-    }
-    .trash{
-        background-color: rgb(0,138,211,0);
-        color: rgb(0,0,0,.7);
-        box-shadow: 0px 3px 5px rgb(0,138,211,0);
-    }
-    .trash:hover{
-        color: rgb(0,0,0,.9);
 
+    .numSetter{
+        margin: 10px 0;
+    }
+    button,.button{
+        background-color: #0001;
+        outline: none;
+        border: none;
+        padding: 8px 12px;
+        cursor: pointer;
+        border-radius: 9px;
+        backdrop-filter: blur(8px);
+        /* color: #fff; */
+        box-shadow: 0 0 10px #00000010;
+    }
+
+    .alarmBox {
+        position: relative;
+        padding: 10px;
+        overflow: hidden;
+        border-radius: 15px;
+        background: #0001;
+        color: #000a;
+        margin: 6px 0 0 0px;
+    }
+
+    .background {
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        height: 100%;
+        z-index: -1;
+        width: 100%;
+        overflow: hidden;
+        --fillColor: rgb(160, 220, 255)
+    }
+
+    .background>.text{
+        position: absolute;
+        right: 0px;
+        top: 0;
+        font-size: 7em;
+        color: #00000007;
+        font-weight: 900
+    }
+    .progressLine {
+        position: absolute;
+        height: 100%;
+        width: calc(var(--per) - 50px);
+        background-color: var(--fillColor);
+        left: 0;
+        top: 0;
+    }
+
+    .inner {
+        position: absolute;
+
+        left: 0;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        left: var(--per);
+        transition: left 1s;
+        animation: spawn 1s cubic-bezier(.2,.7,.3,1);
+    }
+    @keyframes spawn {
+        from{ 
+            left: -20%
+          }
+        to {  
+            left:  var(--per)
+          }
+    }
+    .inner>svg {
+        transform: rotate(90deg) translate(-70px);
+        transform-origin: 0 50%;
+        fill: var(--fillColor);
+
+        height: 100%;
+        animation: waveMove 5s linear infinite;
+    }
+
+    @keyframes waveMove {
+        from {
+            transform: rotate(90deg) translate(-100px);
+        }
+
+        to {
+            transform: rotate(90deg) translate(calc(-100px - 50%));
+        }
     }
 </style>
-    
