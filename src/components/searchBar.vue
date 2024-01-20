@@ -79,11 +79,11 @@
 <style scoped>
 .inputBar{
     position: fixed;
-    bottom: 0px;
+    top: 100vh;
     width: calc(100% - var(--paddingValue) * 2);
     background-color: #fff;
     padding: 0 var(--paddingValue) 20px var(--paddingValue);
-    transform: translateX(calc( -1 * var(--paddingValue) ));
+    transform: translateY(-100%) translateX(calc( -1 * var(--paddingValue) ));
     box-shadow: 0 -12px 12px #fff;
 }
     h1{

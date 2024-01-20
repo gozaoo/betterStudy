@@ -75,6 +75,9 @@
         display: flex;
         gap: 15px;
         margin-top: 30px;
+        max-width: 100%;
+        overflow: hidden;
+        flex-wrap: wrap;
     }
 
     .adviseBox {
