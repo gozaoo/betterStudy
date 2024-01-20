@@ -31,8 +31,7 @@
                 console.log(this.PomodoroTimerInfo);
                 this.timerInterval()
             }
-
-            // this.startNewPomodoroTimer(5)
+ 
         },
         components: {},
         methods: {
@@ -255,7 +254,7 @@
             </div>
             
         </div>
-        <div v-if="interval != null && PomodoroTimerInfo!=null">
+        <div v-if="interval != null && PomodoroTimerInfo!=null && state.finished == false">
             <div :style="{'--per': ((state.currentPomodoroEventInfo.progress * 100).toFixed(0))+'%'}" class="background">
                 <div class="progressLine"></div>
                 <div class="inner" id="box">
@@ -370,6 +369,7 @@
         height: 100%;
         width: calc(var(--per) - 50px);
         background-color: var(--fillColor);
+        transition: width 1s cubic-bezier(.2,.7,.3,1);
         left: 0;
         top: 0;
     }
@@ -384,7 +384,7 @@
         height: 100%;
         width: 100%;
         left: var(--per);
-        transition: left 1s;
+        transition: 1s cubic-bezier(.2,.7,.3,1);
         animation: spawn 1s cubic-bezier(.2,.7,.3,1);
     }
     @keyframes spawn {
