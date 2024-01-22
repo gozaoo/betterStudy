@@ -1,10 +1,18 @@
 <script>
+    import anime from 'animejs'
+    import audio1 from '../../assets/classBegin.mp3?url'
+    import audio2 from '../../assets/overCLass.mp3?url'
+
     export default {
         data() {
             return {
                 PomodoroTimerInfo: null,
+                audio: document.createElement("audio"),
+                useAudio: false,
+                audioLastClickTime: new Date(),
                 state: {
                     currentIndex: 0,
+                    tempOldIndex: 0,
                     currentPomodoroEventInfo: {
                         progress: 0,
                         title: "",
@@ -31,7 +39,7 @@
                 console.log(this.PomodoroTimerInfo);
                 this.timerInterval()
             }
- 
+
         },
         components: {},
         methods: {
@@ -157,7 +165,7 @@
             timerInterval(isReFreshen) {
                 let calculate = () => {
                     let PomodoroTimerInfo = this.PomodoroTimerInfo;
-                    
+
 
                     if (PomodoroTimerInfo == null) return clearInterval(this.interval);
 
@@ -209,14 +217,59 @@
                 clearInterval(this.interval)
                 this.interval = null
                 this.PomodoroTimerInfo = null
+                this.state.finished = false
+            },
+            playActionAudiolet() {
+                if (this.useAudio == false || !this.audio.paused) return;
+                this.audio.volume = 1
+                let timetemp = new Date();
+                this.audioLastClickTime = timetemp
+                
+                let pause = () => {
+                    if (this.audioLastClickTime != timetemp) return;
+                    anime({
+                        targets: this.audio,
+                        volume: [1, 0],
+                        easing: 'steps(100)',
+                        duration: 2000,
+                        finished: () => {
+                            this.audio.pause()
+                        }
+                    })
+                }
+
+                switch (this.state.currentPomodoroEventInfo.title) {
+                    case "专注中":
+                        this.audio.src = audio1
+                        this.audio.currentTime = 3;
+                        this.audio.play()
+                        setTimeout(pause, 14000);
+                        break;
+                    default:
+                        this.audio.src = audio2
+                        this.audio.currentTime = 0;
+                        this.audio.play()
+                        setTimeout(pause, 21000);
+                        break;
+                }
             }
         },
         watch: {
             pomodoroCreater: {
-                handler: async function  (newVal, oldVal) {
+                handler: async function (newVal, oldVal) {
                     if (newVal.num != oldVal.origNum) {
                         newVal.origNum = newVal.num
                         newVal.tempPomodoroTimerInfo = this.createPomodoroTimer(newVal.num)
+                    }
+                },
+                deep: true
+            },
+            state: {
+                handler: async function (newVal, oldVal) {
+                    console.log( newVal.finished == true,newVal.currentIndex != oldVal.tempOldIndex);
+                    if (newVal.finished == true || newVal.currentIndex != oldVal.tempOldIndex) {
+                        this.state.tempOldIndex = newVal.currentIndex
+                        this.playActionAudiolet()
                     }
                 },
                 deep: true
@@ -248,14 +301,16 @@
                 <button @click="cleanAlarm()">
                     结束
                 </button>
-                <div style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
-                    总进度100%<br/>结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
+                <div
+                    style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
+                    总进度100%<br />结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
                 </div>
             </div>
-            
+
         </div>
         <div v-if="interval != null && PomodoroTimerInfo!=null && state.finished == false">
-            <div :style="{'--per': ((state.currentPomodoroEventInfo.progress * 100).toFixed(0))+'%'}" class="background">
+            <div :style="{'--per': ((state.currentPomodoroEventInfo.progress * 100).toFixed(0))+'%'}"
+                class="background">
                 <div class="progressLine"></div>
                 <div class="inner" id="box">
                     <svg xmlns="http://www.w3.org/2000/svg" version="1.0" viewBox="0 0 600 140" class="box-waves">
@@ -276,11 +331,24 @@
                 <button @click="cleanAlarm()">
                     结束
                 </button>
-                <div style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
-                    总进度{{ ((state.progress * 100).toFixed(0))+'%' }}<br/>结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
+                <button @click="this.audio.pause();useAudio = !useAudio;this.playActionAudiolet()">
+                    <svg v-if="!useAudio" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                        class="bi bi-volume-mute-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M6.717 3.55A.5.5 0 0 1 7 4v8a.5.5 0 0 1-.812.39L3.825 10.5H1.5A.5.5 0 0 1 1 10V6a.5.5 0 0 1 .5-.5h2.325l2.363-1.89a.5.5 0 0 1 .529-.06m7.137 2.096a.5.5 0 0 1 0 .708L12.207 8l1.647 1.646a.5.5 0 0 1-.708.708L11.5 8.707l-1.646 1.647a.5.5 0 0 1-.708-.708L10.793 8 9.146 6.354a.5.5 0 1 1 .708-.708L11.5 7.293l1.646-1.647a.5.5 0 0 1 .708 0" />
+                    </svg>
+                    <svg v-if="useAudio" xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor"
+                        class="bi bi-volume-down-fill" viewBox="0 0 16 16">
+                        <path
+                            d="M9 4a.5.5 0 0 0-.812-.39L5.825 5.5H3.5A.5.5 0 0 0 3 6v4a.5.5 0 0 0 .5.5h2.325l2.363 1.89A.5.5 0 0 0 9 12zm3.025 4a4.5 4.5 0 0 1-1.318 3.182L10 10.475A3.5 3.5 0 0 0 11.025 8 3.5 3.5 0 0 0 10 5.525l.707-.707A4.5 4.5 0 0 1 12.025 8" />
+                    </svg>
+                </button>
+                <div
+                    style="margin-top:auto;font-size:12px;text-align: right;color:#0002;font-weight: bolder; margin-left: auto;">
+                    总进度{{ ((state.progress * 100).toFixed(0))+'%' }}<br />结束时间{{ formatDate(new Date(PomodoroTimerInfo.endAt))}}
                 </div>
             </div>
-            
+
         </div>
         <div v-if="PomodoroTimerInfo==null">
             <h2>开始专注</h2>
@@ -289,9 +357,9 @@
             <div class="numSetter buttomArea">
                 <div @click="(pomodoroCreater.num != 1)?(pomodoroCreater.num--):''" class="button">-</div>
                 <div class="button">
-                    
-                    {{ formatDate(new Date(this.pomodoroCreater.tempPomodoroTimerInfo.endAt))}}结束 
-                    </div>
+
+                    {{ formatDate(new Date(this.pomodoroCreater.tempPomodoroTimerInfo.endAt))}}结束
+                </div>
                 <div @click="pomodoroCreater.num++" class="button">+</div>
             </div>
             <button @click="startNewPomodoroTimer(this.pomodoroCreater.num)">
@@ -318,10 +386,12 @@
         user-select: none;
     }
 
-    .numSetter{
+    .numSetter {
         margin: 10px 0;
     }
-    button,.button{
+
+    button,
+    .button {
         background-color: #0001;
         outline: none;
         border: none;
@@ -356,7 +426,7 @@
         --fillColor: rgb(160, 220, 255)
     }
 
-    .background>.text{
+    .background>.text {
         position: absolute;
         right: 0px;
         top: 0;
@@ -364,12 +434,13 @@
         color: #00000007;
         font-weight: 900
     }
+
     .progressLine {
         position: absolute;
         height: 100%;
         width: calc(var(--per) - 50px);
         background-color: var(--fillColor);
-        transition: width 1s cubic-bezier(.2,.7,.3,1);
+        transition: width 2.5s cubic-bezier(.2, .7, .3, 1) ;
         left: 0;
         top: 0;
     }
@@ -384,17 +455,20 @@
         height: 100%;
         width: 100%;
         left: var(--per);
-        transition: 1s cubic-bezier(.2,.7,.3,1);
-        animation: spawn 1s cubic-bezier(.2,.7,.3,1);
+        transition: 2.5s cubic-bezier(.2, .7, .3, 1);
+        animation: spawn 1s cubic-bezier(.2, .7, .3, 1);
     }
+
     @keyframes spawn {
-        from{ 
+        from {
             left: -20%
-          }
-        to {  
-            left:  var(--per)
-          }
+        }
+
+        to {
+            left: var(--per)
+        }
     }
+
     .inner>svg {
         transform: rotate(90deg) translate(-70px);
         transform-origin: 0 50%;
