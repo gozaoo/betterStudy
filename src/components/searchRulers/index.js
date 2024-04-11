@@ -1,6 +1,9 @@
+
 export default {
     fitContent
 }
+import { evaluate } from 'mathjs'
+const math = { evaluate }
 
 function fitContent(val) {
     let template = []
@@ -17,6 +20,14 @@ function fitContent(val) {
     let isEng = /[a-z]+/gi
     if(isEng.test(val)){
         template.push('english')
+    }
+
+    // 检测数学
+    try {
+        let result = math.evaluate(val)
+        template.push('math')
+    } catch (error) {
+        // console.log(error);
     }
     return template
 }

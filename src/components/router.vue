@@ -1,6 +1,6 @@
 <script>
     import routerMap from './routers/index.js'
-
+    import searchCard from './card.vue';
     import searchRulers from './searchRulers/index.js'
 
     export default {
@@ -13,11 +13,14 @@
                 type: String
             }
         },
-        components: routerMap,
+        components: {
+            ...routerMap,
+            searchCard
+        },
         data() {
             return {
                 text: this.renderingText,
-                templates: ["welcome"],
+                templates: ['adviseList'],
                 miniApp: {
                     destination: null,
                     info: ''
@@ -36,9 +39,9 @@
                     let searchInfo = searchRulers.fitContent(newVal)
                     console.log(searchInfo);
                     if (searchInfo instanceof Array) {
-                        this.templates = ['alarm', ...searchInfo]
+                        this.templates = [ ...searchInfo]
                     } else {
-                        this.templates = ['alarm',(searchInfo.info == '')?'adviseList':null, searchInfo.type]
+                        this.templates = [(searchInfo.info == '')?'adviseList':null, searchInfo.type]
                         this.miniApp.destination = searchInfo.destination
                         this.miniApp.info = searchInfo.info
                     }
@@ -46,7 +49,7 @@
                     // 清空展示表
 
                     if (this.renderingState == 'not first' && this.renderingText == '') {
-                        this.templates = ['alarm', 'adviseList']
+                        this.templates = ['adviseList']
                     }
                 },
                 deep: true
@@ -57,16 +60,19 @@
 </script>
 
 <template>
-    <component 
-        :value="renderingText" 
-        :miniAppValue="miniApp.info" 
-        :destination="miniApp.destination" 
-        :is="item"
-        v-for="item in templates" :key="item"></component>
-    <footer></footer>
+    <searchCard v-for="item in templates" :key="item">
+        <component 
+            :value="renderingText" 
+            :miniAppValue="miniApp.info" 
+            :destination="miniApp.destination" 
+            :is="item"
+            @destroyThisItem="templates = templates.filter(items => items != item);"
+            
+            >
+        </component>
+    </searchCard>
 </template>
 <style scoped>
     footer {
-        margin-bottom: 134px;
     }
 </style>

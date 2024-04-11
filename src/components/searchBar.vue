@@ -46,9 +46,6 @@
 
 <template>
     <div class="inputBar">
-
-        <h1>Better Study</h1>
-
         <div class="input">
             <div class="leftControl">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
@@ -78,30 +75,27 @@
 </template>
 <style scoped>
 .inputBar{
-    position: fixed;
-    top: 100vh;
-    width: calc(100% - var(--paddingValue) * 2);
-    background-color: #fff;
-    padding: 0 var(--paddingValue) 20px var(--paddingValue);
-    transform: translateY(-100%) translateX(calc( -1 * var(--paddingValue) ));
-    box-shadow: 0 -12px 12px #fff;
+    
 }
     h1{
-        margin: 10px 0;
+        margin: 6px 0;
         font-size: 1rem;
-        color: #0005;
 
 }
 
 textarea::placeholder{
-    color: #0005;
+    color: #ddd;
+}
+textarea{
+    background-color: #0000;
+    min-width: 100px;
+    color: #ddd;
 }
 .input{
     width: 100%;
-    margin-top: 1.3rem;
-    /* min-height: 3em; */
     height: fit-content;
     border-radius: 1em;
+    background: var(--cardBackgroundImage);
     box-shadow: 0 0 1em #0001;
     box-sizing: border-box;
     padding: 12px;
@@ -112,7 +106,8 @@ textarea::placeholder{
     
 }
 .leftControl{
-    color: #0006;
+    color: #ddd;
+
     max-width: 1.2em;
     min-width: 1.2em;
     flex-shrink: 0;
@@ -125,6 +120,7 @@ textarea::placeholder{
     /* flex: ; */
     flex-grow: 1;
     overflow: hidden;
+    min-width: 100px;
     font-size: 0.9rem;
 }
 .content textarea{
@@ -140,7 +136,7 @@ textarea::placeholder{
     bottom: 100%;
     width: 100%;
     font-size: 0.9rem;
-    color: #000b;
+    color: #ddd;
     overflow: hidden;
         
     white-space: pre-wrap;
@@ -159,7 +155,9 @@ textarea::placeholder{
   white-space: pre-wrap  
 }
 .rightControl{
-    color: #0006;
+
+    color: #ddd;
+
     /* max-width: 1.2em; */
     min-width: 1.2em;
     flex-shrink: 0;

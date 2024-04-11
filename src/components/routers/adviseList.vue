@@ -20,6 +20,10 @@
                         explain: '键入英文'
                     },
                     {
+                        key: '数学',
+                        explain: '数学计算'
+                    },
+                    {
                         key: '/',
                         explain: '智能搜索'
                     }
@@ -62,7 +66,7 @@
 </script>
 
 <template>
-    <h1 v-if="hidden != true">使用技巧和提示词：</h1>
+    <h1 v-if="hidden != true">我能干这些</h1>
     <div class="flex">
         <div class="adviseBox" v-for="(item,index) in (usingCommend)?CommendAdvise:keywordAdvise">
             <div class="advise">{{item.key}}</div>
@@ -73,13 +77,15 @@
 <style scoped>
     div.flex {
         display: flex;
-        gap: 15px;
-        margin-top: 30px;
+        gap: 10px;
+        margin-top: 0px;
         max-width: 100%;
         overflow: hidden;
         flex-wrap: wrap;
     }
-
+    h1{
+        margin-top: 2px;
+    }
     .adviseBox {
         min-width: fit-content;
         min-height: fit-content;
@@ -89,13 +95,15 @@
         background-color: rgb(0, 138, 211);
         color: white;
         width: fit-content;
-        padding: 6px 10px;
-        border-radius: 12px;
-        margin-bottom: 5px;
+        padding: 3px 5px;
+        border-radius: 6px;
+        margin-bottom: 3px;
+        font-size: 0.5em;
         box-shadow: 0px 3px 5px rgb(0, 138, 211, .3);
     }
 
     .explain {
+        font-size: 0.5em;
         color: #000b;
     }
 </style>

@@ -8,11 +8,12 @@
             result: {},
             type:undefined,
             explanation: [],
-            displaymore:false
+            displaymore:true
         }
     },
     methods: {
         search(){
+            let tempValue = this.value
             fetch("/api/searchEng?value=" + this.value, {
             "referrerPolicy": "strict-origin-when-cross-origin",
             "body": null,
@@ -20,8 +21,13 @@
             "mode": "cors",
             "credentials": "include"
             }).then(r=>r.json()).then(r=>{
+                
+                if(!r.result || r.result.length ==0){
+                    this.$emit('destroyThisItem')
+                    return
+                }
+                if(this.value != tempValue) return;
                 this.result = r.result
-                console.log(r);
             })
         }
     },
@@ -40,7 +46,7 @@
   };</script>
 
 <template>
-    <div v-if="this.result !=(null || undefined)" class="dictionary">英语字典</div>
+    <div v-if="this.result !=undefined" class="dictionary">英语字典</div>
     <div class="box" v-if="result">
         <div class="word">
             {{ result.headWord }}
@@ -61,17 +67,18 @@
             显示更多
         </div>
         <div v-if="displaymore == true" class="phrase ">
-            <span v-for="(item,index) in result.content.word.content.phrase.phrases">
-                {{ item.pContent + ' ' + item.pCn}} 
+            <span  v-for="(item,index) in (result.allResults)?result.allResults.slice(0, 10):[]" v-if="result.allResults">
+                {{ item.headWord }} <span v-for="(item_,index) in item.content.word.content.trans">
+                    {{ item_.pos }}.{{ item_.tranCn }}
+            </span>
+
             </span>
         </div>
+        <br>
     </div>
-
 </template>
 <style scoped>
     .dictionary{
-        margin-top: 10px;
-        color: #0003;
         font-size: 10px;
     }
     .word{

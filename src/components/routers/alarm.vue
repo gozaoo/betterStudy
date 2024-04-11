@@ -2,7 +2,7 @@
     import anime from 'animejs'
     import audio1 from '../../assets/classBegin.mp3?url'
     import audio2 from '../../assets/overCLass.mp3?url'
-
+    import timeFormater from '../../js/timeFormater';
     export default {
         data() {
             return {
@@ -90,7 +90,7 @@
                 let diff = end - now;
 
                 // 格式化时间差
-                let formattedTime = this.formatTime(Math.abs(diff));
+                let formattedTime = timeFormater.formatTime({type:'countdown'},endTime);
 
                 // 判断时间状态
                 let isPast = diff < 0;
@@ -399,18 +399,14 @@
         cursor: pointer;
         border-radius: 9px;
         backdrop-filter: blur(8px);
-        /* color: #fff; */
+        color: inherit;
         box-shadow: 0 0 10px #00000010;
     }
 
     .alarmBox {
         position: relative;
-        padding: 10px;
         overflow: hidden;
         border-radius: 15px;
-        background: #0001;
-        color: #000a;
-        margin: 6px 0 0 0px;
     }
 
     .background {
